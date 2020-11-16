@@ -1,6 +1,7 @@
 import './App.css';
-import React, { useState } from 'react';
-import Post from './components/PostComponent/Post'
+import React, { useState,useEffect } from 'react';
+import Post from './components/PostComponent/Post';
+import firebase from './Fire'
 function App() {
 
   //state
@@ -11,6 +12,19 @@ function App() {
      imageUrl:"https://images.unsplash.com/photo-1605290975464-72d2acef7d4a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
     }
   ])
+
+  //useEffect - ruun a piece of code on some condition
+  useEffect(()=>{
+    //runs every time page loads and everytime posts is updated
+    //every time posts id updated snapshot is created
+    firebase.firestore().collection('posts').onSnapshot(snapshot=>{
+      setPosts(snapshot.docs.map(doc =>({
+        id:doc.id,
+        post: doc.data()
+      })))
+    })
+
+  },[])
   return (
     <div className="app">
 
@@ -21,8 +35,9 @@ function App() {
 
       {/* Iterating through posts state and rendering posts dynamically */}
       {
-        posts.map( post =>
-          <Post userName={post.userName}
+        posts.map( ({id,post}) =>
+        // key prevents re rendering, identifies the change
+          <Post key={id} userName={post.userName}
           caption={post.caption}
           imageUrl={post.imageUrl}
           ></Post>
